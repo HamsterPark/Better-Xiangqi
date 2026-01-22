@@ -1,9 +1,9 @@
 const AI_DEPTHS = {
-  easy: 1,
-  medium: 2,
-  hard: 3,
-  extreme: 4,
-  ultimate: 5
+  easy: 2,
+  medium: 3,
+  hard: 4,
+  extreme: 5,
+  ultimate: 6
 };
 
 const AI_TIME_LIMITS = {
@@ -18,6 +18,7 @@ const AI_WIN_SCORE = 1000000;
 const AI_FORFEIT_SCORE = 900000;
 const AI_THINK_DELAY_MIN = 200;
 const AI_THINK_DELAY_MAX = 500;
+const AI_PRUNE_MARGIN = 40;
 
 const PIECE_VALUES = {
   g: 10000,
@@ -223,7 +224,7 @@ function alphaBeta(depth, alpha, beta, color, state) {
       if (state.aborted) break;
       if (score > best) best = score;
       if (best > alpha) alpha = best;
-      if (alpha >= beta) break;
+      if (alpha >= beta + AI_PRUNE_MARGIN) break;
     }
     return best;
   }
@@ -237,7 +238,7 @@ function alphaBeta(depth, alpha, beta, color, state) {
     if (state.aborted) break;
     if (score < best) best = score;
     if (best < beta) beta = best;
-    if (alpha >= beta) break;
+    if (alpha >= beta + AI_PRUNE_MARGIN) break;
   }
   return best;
 }
