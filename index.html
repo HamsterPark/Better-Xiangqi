@@ -8,94 +8,119 @@
 <body>
   <div id="menuScreen" class="screen">
     <h1>抽象象棋</h1>
-    <div class="menu-group">
-      <div class="menu-title">常用棋盘模式</div>
-      <div class="menu-options">
-        <label class="option">
-          <input type="radio" name="boardMode" value="normal" checked />
-          <span>标准</span>
-        </label>
-        <label class="option">
-          <input type="radio" name="boardMode" value="wide" />
-          <span>横向加倍</span>
-        </label>
-        <label class="option">
-          <input type="radio" name="boardMode" value="tall" />
-          <span>纵向加倍</span>
-        </label>
-        <label class="option">
-          <input type="radio" name="boardMode" value="big" />
-          <span>横纵加倍</span>
-        </label>
-        <label class="option">
-          <input type="radio" name="boardMode" value="custom" />
-          <span>自定义</span>
-        </label>
+    <div class="menu-layout">
+      <div class="menu-section">
+        <div class="menu-section-title">标准游戏</div>
+        <div class="menu-row">
+          <div class="menu-title">棋盘模式</div>
+          <div class="menu-options">
+            <label class="option">
+              <input type="radio" name="boardMode" value="normal" checked />
+              <span>标准</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="boardMode" value="wide" />
+              <span>横向加倍</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="boardMode" value="tall" />
+              <span>纵向加倍</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="boardMode" value="big" />
+              <span>横纵加倍</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="boardMode" value="custom" />
+              <span>自定义</span>
+            </label>
+          </div>
+          <div id="customBoardSize" class="menu-options custom-size hidden">
+            <label class="custom-input">列数
+              <input id="customBoardWidth" type="number" min="9" value="9" />
+            </label>
+            <label class="custom-input">行数
+              <input id="customBoardHeight" type="number" min="10" value="10" />
+            </label>
+          </div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-title">扩展模式</div>
+          <div class="menu-options">
+            <label class="option">
+              <input type="radio" name="expandMode" value="standard" checked />
+              <span>标准</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="expandMode" value="pawns" />
+              <span>扩展兵</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="expandMode" value="generals" />
+              <span>扩展将</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="expandMode" value="both" />
+              <span>扩展兵将</span>
+            </label>
+          </div>
+        </div>
       </div>
-      <div id="customBoardSize" class="menu-options custom-size hidden">
-        <label class="custom-input">列数
-          <input id="customBoardWidth" type="number" min="9" value="9" />
-        </label>
-        <label class="custom-input">行数
-          <input id="customBoardHeight" type="number" min="10" value="10" />
-        </label>
+      <div class="menu-section">
+        <div class="menu-section-title">特殊地图</div>
+        <div class="menu-row">
+          <div class="menu-title">内置棋盘</div>
+          <div class="menu-options special-board-buttons">
+            <button class="option-button" type="button">1</button>
+            <button class="option-button" type="button">2</button>
+            <button class="option-button" type="button">3</button>
+            <button class="option-button" type="button">4</button>
+            <button class="option-button" type="button">5</button>
+            <button class="option-button" type="button">6</button>
+            <button class="option-button" type="button">7</button>
+            <button class="option-button" type="button">8</button>
+            <button class="option-button" type="button">9</button>
+            <button class="option-button" type="button">10</button>
+          </div>
+        </div>
+        <div class="menu-row">
+          <div class="menu-title">棋盘编辑器</div>
+          <div class="menu-options">
+            <button id="editBoardBtn" class="option-button" type="button">编辑棋盘</button>
+            <button id="loadBoardBtn" class="option-button" type="button">加载棋盘</button>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="menu-group">
-      <div class="menu-title">扩展模式</div>
-      <div class="menu-options">
-        <label class="option">
-          <input type="radio" name="expandMode" value="standard" checked />
-          <span>标准</span>
-        </label>
-        <label class="option">
-          <input type="radio" name="expandMode" value="pawns" />
-          <span>扩展兵</span>
-        </label>
-        <label class="option">
-          <input type="radio" name="expandMode" value="generals" />
-          <span>扩展将</span>
-        </label>
-        <label class="option">
-          <input type="radio" name="expandMode" value="both" />
-          <span>扩展兵将</span>
-        </label>
-      </div>
-    </div>
-    <div class="menu-group">
-      <div class="menu-title">自定义棋盘编辑器</div>
-      <div class="menu-options">
-        <button id="editBoardBtn" class="option-button" type="button">编辑棋盘</button>
-        <button id="loadBoardBtn" class="option-button" type="button">加载棋盘</button>
-      </div>
-    </div>
-    <div class="menu-group">
-      <div class="menu-title">AI对手</div>
-      <div class="menu-options">
-        <label class="option">
-          <input type="radio" name="aiLevel" value="none" checked />
-          <span>无对手（玩家控制双方）</span>
-        </label>
-        <label class="option">
-          <input type="radio" name="aiLevel" value="easy" />
-          <span>简单（5秒）</span>
-        </label>
-        <label class="option">
-          <input type="radio" name="aiLevel" value="medium" />
-          <span>中等（10秒）</span>
-        </label>
-        <label class="option">
-          <input type="radio" name="aiLevel" value="hard" />
-          <span>困难（30秒）</span>
-        </label>
-        <label class="option">
-          <input type="radio" name="aiLevel" value="extreme" />
-          <span>极难（60秒）</span>
-        </label>
-        <label class="option">
-          <input type="radio" name="aiLevel" value="ultimate" />
-          <span>极限（无限）</span>
-        </label>
+      <div class="menu-section">
+        <div class="menu-section-title">AI对手</div>
+        <div class="menu-row">
+          <div class="menu-options">
+            <label class="option">
+              <input type="radio" name="aiLevel" value="none" checked />
+              <span>无对手（玩家控制双方）</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="aiLevel" value="easy" />
+              <span>简单（5秒）</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="aiLevel" value="medium" />
+              <span>中等（10秒）</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="aiLevel" value="hard" />
+              <span>困难（30秒）</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="aiLevel" value="extreme" />
+              <span>极难（60秒）</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="aiLevel" value="ultimate" />
+              <span>极限（无限）</span>
+            </label>
+          </div>
+        </div>
       </div>
     </div>
     <div class="menu-actions">
