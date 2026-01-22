@@ -926,6 +926,7 @@ function applyEditorSettings(preservePieces = true) {
 function canPlacePieceInEditor(piece, x, y) {
   if (!piece) return false;
   if (x < 0 || x >= editorWidth || y < 0 || y >= editorHeight) return false;
+  if (piece.type === 'empty') return true;
   if (piece.type === 'g' || piece.type === 'a') {
     if (!piece.color) return false;
     return isInPalaceForMeta(editorMeta, piece.color, x, y);
@@ -949,6 +950,7 @@ function parseDragData(data) {
 
 function renderEditorPalettes() {
   const paletteItems = [
+    { type: 'empty', label: '\u7a7a\u767d' },
     { type: 'g', label: '\u5c06/\u5e05' },
     { type: 'a', label: '\u58eb/\u4ed5' },
     { type: 'e', label: '\u8c61/\u76f8' },
@@ -969,7 +971,10 @@ function renderEditorPalettes() {
       pieceEl.className = 'palette-piece';
       pieceEl.draggable = true;
       pieceEl.title = item.label;
-      if (item.type === 'b') {
+      if (item.type === 'empty') {
+        pieceEl.classList.add('empty');
+        pieceEl.textContent = '\u7a7a';
+      } else if (item.type === 'b') {
         pieceEl.classList.add('block');
       } else {
         pieceEl.classList.add(color);
@@ -979,7 +984,7 @@ function renderEditorPalettes() {
         const payload = {
           source: 'palette',
           type: item.type,
-          color: item.type === 'b' ? null : color
+          color: item.type === 'b' || item.type === 'empty' ? null : color
         };
         editorDragPayload = payload;
         event.dataTransfer.setData('text/plain', JSON.stringify(payload));
@@ -1059,6 +1064,11 @@ function renderEditorBoard() {
         const payload = parseDragData(event.dataTransfer.getData('text/plain')) || editorDragPayload;
         editorDragPayload = null;
         if (!payload || !payload.type) return;
+        if (payload.type === 'empty') {
+          editorBoard[y][x] = null;
+          renderEditorBoard();
+          return;
+        }
         const piece = { type: payload.type, color: payload.color ?? null };
         if (!canPlacePieceInEditor(piece, x, y)) return;
         if (payload.source === 'board') {
@@ -1188,29 +1198,6 @@ if (loadStartBtn) loadStartBtn.addEventListener('click', () => {
 
 const loadCancelBtn = document.getElementById('loadCancelBtn');
 if (loadCancelBtn) loadCancelBtn.addEventListener('click', closeLoadDialog);
-
-const deleteZone = document.getElementById('editorDeleteZone');
-if (deleteZone) {
-  deleteZone.addEventListener('dragover', (event) => {
-    event.preventDefault();
-    deleteZone.classList.add('drag-over');
-    event.dataTransfer.dropEffect = 'move';
-  });
-  deleteZone.addEventListener('dragleave', () => {
-    deleteZone.classList.remove('drag-over');
-  });
-  deleteZone.addEventListener('drop', (event) => {
-    event.preventDefault();
-    deleteZone.classList.remove('drag-over');
-    const payload = parseDragData(event.dataTransfer.getData('text/plain')) || editorDragPayload;
-    editorDragPayload = null;
-    if (!payload || payload.source !== 'board') return;
-    if (editorBoard[payload.y] && editorBoard[payload.y][payload.x]) {
-      editorBoard[payload.y][payload.x] = null;
-      renderEditorBoard();
-    }
-  });
-}
 
 document.querySelectorAll('input[name="boardMode"]').forEach((radio) => {
   radio.addEventListener('change', updateCustomSizeVisibility);

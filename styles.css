@@ -351,6 +351,12 @@ h1 {
 .palette-piece.black {
   color: #000;
 }
+.palette-piece.empty {
+  color: #666;
+  border-style: dashed;
+  background: #f2f2f2;
+  font-size: 16px;
+}
 .palette-piece.block {
   background: #111;
   border-color: #111;
@@ -362,19 +368,6 @@ h1 {
   gap: 10px;
   max-width: 100%;
   overflow: auto;
-}
-.delete-zone {
-  width: 100%;
-  padding: 10px 12px;
-  text-align: center;
-  border: 2px dashed #c0392b;
-  color: #c0392b;
-  border-radius: 10px;
-  background: #fff7f7;
-  box-sizing: border-box;
-}
-.delete-zone.drag-over {
-  background: #ffdcdc;
 }
 .load-dialog {
   min-width: 240px;
