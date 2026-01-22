@@ -1,4 +1,4 @@
-/**
+﻿/**
  * 象棋扩展版小游戏逻辑
  *
  * 棋盘采用网格布局，支持自定义扩展尺寸，初始布局与宫界、河界随尺寸调整。
@@ -684,8 +684,8 @@ function getPieceChar(piece) {
   if (!piece) return '';
   const { type, color } = piece;
   if (type === 'b') return '';
-  const redChars = { g: '帅', a: '仕', e: '相', h: '马', r: '车', c: '炮', p: '兵', q: '后' };
-  const blackChars = { g: '将', a: '士', e: '象', h: '马', r: '车', c: '炮', p: '卒', q: '后' };
+  const redChars = { g: '\u5e05', a: '\u4ed5', e: '\u76f8', h: '\u9a6c', r: '\u8f66', c: '\u70ae', p: '\u5175', q: '\u540e' };
+  const blackChars = { g: '\u5c06', a: '\u58eb', e: '\u8c61', h: '\u9a6c', r: '\u8f66', c: '\u70ae', p: '\u5352', q: '\u540e' };
   if (color === 'red') return redChars[type] || '';
   if (color === 'black') return blackChars[type] || '';
   return '';
@@ -943,15 +943,15 @@ function parseDragData(data) {
 
 function renderEditorPalettes() {
   const paletteItems = [
-    { type: 'g', label: '将/帅' },
-    { type: 'a', label: '士/仕' },
-    { type: 'e', label: '象/相' },
-    { type: 'h', label: '马' },
-    { type: 'r', label: '车' },
-    { type: 'c', label: '炮' },
-    { type: 'p', label: '兵/卒' },
-    { type: 'q', label: '后' },
-    { type: 'b', label: '路障' }
+    { type: 'g', label: '\u5c06/\u5e05' },
+    { type: 'a', label: '\u58eb/\u4ed5' },
+    { type: 'e', label: '\u8c61/\u76f8' },
+    { type: 'h', label: '\u9a6c' },
+    { type: 'r', label: '\u8f66' },
+    { type: 'c', label: '\u70ae' },
+    { type: 'p', label: '\u5175/\u5352' },
+    { type: 'q', label: '\u540e' },
+    { type: 'b', label: '\u8def\u969c' }
   ];
 
   function renderPalette(containerId, color) {
@@ -1037,7 +1037,8 @@ function renderEditorBoard() {
       }
       cellDiv.addEventListener('dragover', (event) => {
         event.preventDefault();
-        event.dataTransfer.dropEffect = 'move';
+        const allowed = (event.dataTransfer?.effectAllowed || '').toLowerCase();
+        event.dataTransfer.dropEffect = allowed.includes('move') ? 'move' : 'copy';
       });
       cellDiv.addEventListener('drop', (event) => {
         event.preventDefault();
@@ -1201,3 +1202,4 @@ document.querySelectorAll('input[name="boardMode"]').forEach((radio) => {
 updateCustomSizeVisibility();
 
 showMenu();
+

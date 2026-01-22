@@ -1,4 +1,4 @@
-/* 基础样式 */
+﻿/* 基础样式 */
 body {
   font-family: sans-serif;
   background: #f7f7f7;
@@ -274,7 +274,15 @@ h1 {
   padding: 4px 6px;
   font-size: 14px;
 }
-.palace-settings {
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+.editor-actions button {
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}.palace-settings {
   justify-content: space-between;
   gap: 16px;
 }
@@ -386,3 +394,4 @@ h1 {
   justify-content: center;
   gap: 8px;
 }
+
