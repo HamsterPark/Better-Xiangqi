@@ -12,6 +12,16 @@
     return;
   }
   if (aiThinking && isAiEnabled()) {
+    const limitMs = getAiTimeLimit();
+    const limitSec = limitMs > 0 ? Math.max(1, Math.ceil(limitMs / 1000)) : 0;
+    if (limitSec > 0 && aiThinkStart > 0) {
+      const elapsedSec = Math.floor((Date.now() - aiThinkStart) / 1000);
+      if (elapsedSec > 0) {
+        const shown = Math.min(elapsedSec, limitSec);
+        statusEl.textContent = `AI思考中 ${shown}/${limitSec}s`;
+        return;
+      }
+    }
     statusEl.textContent = 'AI思考中';
     return;
   }

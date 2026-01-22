@@ -27,6 +27,8 @@ let activeCustomBoard = null;
 let aiThinking = false;
 let aiTimeoutId = null;
 let aiToken = 0;
+let aiThinkStart = 0;
+let aiTickId = null;
 
 let editorBoard = [];
 let editorMeta = null;

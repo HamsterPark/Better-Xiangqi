@@ -19,6 +19,8 @@ const AI_FORFEIT_SCORE = 900000;
 const AI_THINK_DELAY_MIN = 200;
 const AI_THINK_DELAY_MAX = 500;
 const AI_PRUNE_MARGIN = 40;
+let aiWorker = null;
+let aiWorkerPending = null;
 
 const PIECE_VALUES = {
   g: 10000,
@@ -60,13 +62,82 @@ function getAiTimeLimit() {
   return AI_TIME_LIMITS[aiLevel] || 0;
 }
 
+function getWorkerBoardMeta() {
+  if (!boardMeta || !boardMeta.palace) return null;
+  return {
+    riverRow: boardMeta.riverRow,
+    riverSplit: boardMeta.riverSplit,
+    palace: {
+      black: { ...boardMeta.palace.black },
+      red: { ...boardMeta.palace.red }
+    }
+  };
+}
+
+function ensureAiWorker() {
+  if (aiWorker) return aiWorker;
+  if (typeof Worker === 'undefined') return null;
+  try {
+    aiWorker = new Worker('assets/js/ai-worker.js');
+  } catch (error) {
+    aiWorker = null;
+    return null;
+  }
+  aiWorker.onmessage = (event) => {
+    const data = event.data;
+    if (!data || data.type !== 'result') return;
+    aiWorkerPending = null;
+    handleAiSearchResult(data.token, data.move);
+  };
+  aiWorker.onerror = (event) => {
+    const pending = aiWorkerPending;
+    aiWorkerPending = null;
+    if (aiWorker) {
+      aiWorker.terminate();
+      aiWorker = null;
+    }
+    if (!pending || pending.token !== aiToken || !aiThinking) return;
+    const move = findBestMove(pending.depth, pending.timeLimit, pending.token);
+    handleAiSearchResult(pending.token, move);
+  };
+  return aiWorker;
+}
+
+function startAiTimer() {
+  aiThinkStart = Date.now();
+  if (aiTickId) {
+    clearInterval(aiTickId);
+  }
+  aiTickId = setInterval(() => {
+    if (!aiThinking) {
+      stopAiTimer();
+      return;
+    }
+    updateStatus();
+  }, 1000);
+}
+
+function stopAiTimer() {
+  if (aiTickId) {
+    clearInterval(aiTickId);
+    aiTickId = null;
+  }
+  aiThinkStart = 0;
+}
+
 function cancelAiMove(silent = false) {
   if (aiTimeoutId) {
     clearTimeout(aiTimeoutId);
     aiTimeoutId = null;
   }
+  if (aiWorker) {
+    aiWorker.terminate();
+    aiWorker = null;
+  }
+  aiWorkerPending = null;
   aiToken += 1;
   aiThinking = false;
+  stopAiTimer();
   if (!silent) {
     updateStatus();
   }
@@ -82,6 +153,7 @@ function maybeTriggerAiMove() {
   aiThinking = true;
   updateStatus();
   updateUndoButton();
+  startAiTimer();
   const token = ++aiToken;
   const delay = AI_THINK_DELAY_MIN + Math.floor(Math.random() * (AI_THINK_DELAY_MAX - AI_THINK_DELAY_MIN + 1));
   aiTimeoutId = setTimeout(() => runAiMove(token), delay);
@@ -91,23 +163,57 @@ function runAiMove(token) {
   aiTimeoutId = null;
   if (token !== aiToken || !isAiEnabled() || gameOver || currentPlayer !== 'black') {
     aiThinking = false;
+    stopAiTimer();
     updateStatus();
     updateUndoButton();
     return;
   }
+  startAiSearch(token);
+}
 
+function startAiSearch(token) {
   const depth = getAiDepth();
   const timeLimit = getAiTimeLimit();
-  const move = findBestMove(depth, timeLimit, token);
+  const worker = ensureAiWorker();
+  if (!worker) {
+    const move = findBestMove(depth, timeLimit, token);
+    handleAiSearchResult(token, move);
+    return;
+  }
+  aiWorkerPending = { token, depth, timeLimit };
+  worker.postMessage({
+    type: 'search',
+    token,
+    board,
+    boardWidth,
+    boardHeight,
+    boardMeta: getWorkerBoardMeta(),
+    depth,
+    timeLimit,
+    pruneMargin: AI_PRUNE_MARGIN,
+    evalConfig: {
+      pieceValues: PIECE_VALUES,
+      mobilityWeight: MOBILITY_WEIGHT,
+      centerControlWeight: CENTER_CONTROL_WEIGHT,
+      centerPositionWeight: CENTER_POSITION_WEIGHT,
+      territoryWeight: TERRITORY_WEIGHT,
+      pawnCrossedBonus: PAWN_CROSSED_BONUS
+    }
+  });
+}
 
-  if (token !== aiToken) {
+function handleAiSearchResult(token, move) {
+  if (token !== aiToken) return;
+  if (!isAiEnabled() || gameOver || currentPlayer !== 'black') {
     aiThinking = false;
+    stopAiTimer();
     updateStatus();
     updateUndoButton();
     return;
   }
 
   aiThinking = false;
+  stopAiTimer();
 
   if (!move) {
     handleForfeit('black');
